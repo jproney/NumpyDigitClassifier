@@ -8,7 +8,7 @@ class WeightLayer:
         self.num_inputs = num_inputs
         self.num_outputs = num_outputs
         self.activ = activ
-        self.weight_matrix = np.random.rand((num_inputs + 1, num_outputs))
+        self.weight_matrix = np.random.rand((num_outputs, num_inputs+1))
     
     def compute(self, input_vec):
         with_bias = np.concatenate(input_vec,np.array([1]))
