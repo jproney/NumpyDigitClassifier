@@ -13,8 +13,9 @@ class LinearTestCase(unittest.TestCase):
         b = np.array([random.randrange(0,20) for i in range(3)])
         noise = np.random.rand(100,1)*50
         train_ex = np.array([[x**2 ,x ,1] for x in range(0,100)])
-        sol = np.ndarray.flatten(train_ex @ b) #+ np.ndarray.flatten(noise)
+        sol = np.ndarray.flatten(train_ex @ b) + np.ndarray.flatten(noise)
         theta = gd.gradient_descent(train_ex,sol, gd.linear_squared_error_gradient)
+        print(b)
         print(theta)
         assert fuzzy_equals(theta, b), "error outside tolerance"
         
