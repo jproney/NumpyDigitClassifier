@@ -20,5 +20,5 @@ def gradient_descent(train_ex, solutions, grad_fn, alpha=.001, iterations=100000
         curr_grad = grad_fn(train_ex,solutions,curr_theta)
         curr_theta -= alpha*curr_grad
     if normalize:
-        return np.divide(curr_theta,np.array([col_scales]).T)
+        return curr_theta
     return curr_theta
