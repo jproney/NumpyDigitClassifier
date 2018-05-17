@@ -9,16 +9,18 @@ def linear_squared_error_gradient(train_ex, sol, theta):
     return np.array([[2*np.dot(np.ndarray.flatten(np.matmul(train_ex,theta)) - np.ndarray.flatten(sol), x)] for x in train_ex.T])
 
 def column_normalize(array):
-    max_vals = array.max(axis = 0)
-    return (array/max_vals, max_vals)
+    mean_vals = array.mean(axis=0)
+    std_vals = array.std(axis=0) + .00001
+    return (np.subtract(array,mean_vals)/std_vals, (mean_vals,std_vals))
 
 def gradient_descent(train_ex, solutions, grad_fn, alpha=.001, iterations=100000, normalize = True):
     if normalize:
-        (train_ex, col_scales) = column_normalize(train_ex)
+        (train_ex, train_norm_params) = column_normalize(train_ex)
+        (solutions,sol_norm_params) = column_normalize(solutions)
     curr_theta = np.zeros((train_ex.shape[1],1))
     for i in range(iterations):
         curr_grad = grad_fn(train_ex,solutions,curr_theta)
         curr_theta -= alpha*curr_grad
-    if normalize:
-        return curr_theta
+    if(normalize):
+        return (curr_theta,train_norm_params,sol_norm_params)
     return curr_theta
