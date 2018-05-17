@@ -14,7 +14,7 @@ def column_normalize(array):
     std_vals = array.std(axis=0) + .00001
     return (np.subtract(array,mean_vals)/std_vals, (mean_vals,std_vals))
 
-def gradient_descent(train_ex, solutions, grad_fn, alpha=.001, iterations=100000, normalize = True):
+def gradient_descent(train_ex, solutions, grad_fn, alpha=.0001, iterations=100000, normalize = True):
     if normalize:
         (train_ex, train_norm_params) = column_normalize(train_ex)
         (solutions,sol_norm_params) = column_normalize(solutions)

@@ -12,9 +12,9 @@ class LinearTestCase(unittest.TestCase):
     
     def testA(self):
         b = np.random.rand(3,1)*20
-        noise = np.random.rand(1000,1)*20000
-        input_vec = np.random.rand(1000,1)*100
-        train_ex = np.hstack((input_vec**2,input_vec,np.ones((1000,1))))
+        noise = np.random.rand(10000,1)*20000
+        input_vec = np.random.rand(10000,1)*100
+        train_ex = np.hstack((input_vec**2,input_vec,np.ones((10000,1))))
         sol = np.ndarray.flatten(train_ex @ b) + np.ndarray.flatten(noise)
         start = time.time()
         (theta,(in_add,in_scale),(out_add,out_scale)) = gd.gradient_descent(train_ex,sol, gd.linear_squared_error_gradient)
@@ -24,7 +24,7 @@ class LinearTestCase(unittest.TestCase):
         h = np.add(np.multiply(te_norm @ theta,out_scale),out_add)
         plt.plot(input_vec,sol,'bo',linestyle='none')
         input_vec.sort(0)
-        plt.plot(input_vec,h,color='r')
+        plt.plot(input_vec,h,color='r',linewidth=4)
         plt.show()
         
 if __name__ == "__main__":
