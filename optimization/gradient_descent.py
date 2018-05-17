@@ -25,3 +25,11 @@ def gradient_descent(train_ex, solutions, grad_fn, alpha=.0001, iterations=10000
     if(normalize):
         return (curr_theta,train_norm_params,sol_norm_params)
     return curr_theta
+
+def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .0001, iterations = 100000, normalize = True):
+    if normalize: 
+        (train_ex, train_norm_params) = column_normalize(train_ex)
+        (solutions,sol_norm_params) = column_normalize(solutions)
+    curr_theta = np.zeros((train_ex.shape[1],))
+    return curr_theta
+    #To be continued!!! 
