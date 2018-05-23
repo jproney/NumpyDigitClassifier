@@ -14,7 +14,7 @@ def column_normalize(array):
     std_vals = array.std(axis=0) + .00001
     return (np.subtract(array,mean_vals)/std_vals, (mean_vals,std_vals))
 
-def gradient_descent(train_ex, solutions, grad_fn, alpha=.0001, iterations=100000, normalize = True):
+def gradient_descent(train_ex, solutions, grad_fn, alpha=.0001, iterations=1000, normalize = True):
     if normalize:
         (train_ex, train_norm_params) = column_normalize(train_ex)
         (solutions,sol_norm_params) = column_normalize(solutions)
@@ -26,17 +26,17 @@ def gradient_descent(train_ex, solutions, grad_fn, alpha=.0001, iterations=10000
         return (curr_theta,train_norm_params,sol_norm_params)
     return curr_theta
 
-def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .0001, iterations = 100000, normalize = True):
+def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .0001, iterations = 1000, normalize = True):
     if normalize: 
         (train_ex, train_norm_params) = column_normalize(train_ex)
         (solutions,sol_norm_params) = column_normalize(solutions)
     curr_theta = np.zeros((train_ex.shape[1],))
     for i in range(iterations):
-        indices = np.random.choice(train_ex.shape[0],)
+        indices = np.random.choice(train_ex.shape[0],mini_batch_size)
         min_batch = np.take(train_ex,indices,axis=0)
         sol_batch = np.take(solutions, indices, axis=0)
         curr_grad = grad_fn(min_batch, sol_batch, curr_theta)
-        curr_theta -= np.ndarray.flatten(curr_grad)
+        curr_theta -= alpha*np.ndarray.flatten(curr_grad)
     if normalize: 
         return (curr_theta,train_norm_params,sol_norm_params)
     return curr_theta
