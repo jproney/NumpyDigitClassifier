@@ -4,13 +4,11 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import time
-
-def fuzzy_equals(a,b):
-    return np.all(np.less(a-b,np.ones(a.shape)*.001))
+import mnist
 
 class LinearTestCase(unittest.TestCase):
     
-    def testBasicGD(self):
+    def test_basic_GD(self):
         print("testing gradient descent...")
         b = np.random.rand(3,1)*20
         noise = np.random.rand(10000,1)*20000
@@ -20,7 +18,7 @@ class LinearTestCase(unittest.TestCase):
         start = time.time()
         (train_ex, (in_add,in_scale)) = gd.column_normalize(train_ex)
         (sol,(out_add,out_scale)) = gd.column_normalize(sol)
-        (theta,err) = gd.gradient_descent(train_ex,sol, gd.linear_squared_error_gradient,iterations = 200,track_err = True)
+        (theta,err) = gd.gradient_descent(train_ex,sol, gd.linear_squared_error_gradient,iterations = 200,track_err = True, error_fn = gd.squared_error_cost)
         print("Converged in {} Seconds".format(time.time()-start))
         train_ex.sort(0)
         h = train_ex @ theta
@@ -33,7 +31,7 @@ class LinearTestCase(unittest.TestCase):
         plt.show()
 
 
-    def testSGD(self):
+    def test_SGD(self):
         print("testing SGD...")
         b = np.random.rand(3,1)*20
         noise = np.random.rand(10000,1)*20000
@@ -43,7 +41,7 @@ class LinearTestCase(unittest.TestCase):
         start = time.time()
         (train_ex, (in_add,in_scale)) = gd.column_normalize(train_ex)
         (sol,(out_add,out_scale)) = gd.column_normalize(sol)
-        (theta,err) = gd.sgd_optimize(train_ex,sol, gd.linear_squared_error_gradient,1000,iterations = 1000,track_err = True)
+        (theta,err) = gd.sgd_optimize(train_ex,sol, gd.linear_squared_error_gradient,1000,iterations = 1000,track_err = True,error_fn = gd.squared_error_cost)
         print("Converged in {} Seconds".format(time.time()-start))
         train_ex.sort(0)
         h = train_ex @ theta
@@ -56,7 +54,7 @@ class LinearTestCase(unittest.TestCase):
         plt.show()
 
 
-    def testAdam(self):
+    def test_adam(self):
         print("testing ADAM...")
         b = np.random.rand(3,1)*20
         noise = np.random.rand(10000,1)*20000
@@ -66,7 +64,7 @@ class LinearTestCase(unittest.TestCase):
         start = time.time()
         (train_ex, (in_add,in_scale)) = gd.column_normalize(train_ex)
         (sol,(out_add,out_scale)) = gd.column_normalize(sol)
-        (theta,err) = gd.adam_optimize(train_ex,sol, gd.linear_squared_error_gradient,1000,iterations = 1000,track_err = True)
+        (theta,err) = gd.adam_optimize(train_ex,sol, gd.linear_squared_error_gradient,1000,iterations = 1000,track_err = True,error_fn = gd.squared_error_cost)
         print("Converged in {} Seconds".format(time.time()-start))
         train_ex.sort(0)
         h = train_ex @ theta
@@ -77,6 +75,17 @@ class LinearTestCase(unittest.TestCase):
         plt.subplot(2,1,2)
         plt.plot(np.arange(err.shape[0]),err)
         plt.show()
+
+    def test_logistic(self):
+        print("testing logistic regression on MNIST...")
+        m = mnist.MNIST('/home/petey/Documents/PythonProjects/MachineLearning/python-mnist/data')
+        images, labels = m.load_training()
+        train_ex = np.asarray(images)
+        sol = (np.asarray(labels) == 7).astype('uint8')
+        (train_ex, (in_add, in_scale)) = gd.column_normalize(train_ex) 
+        (theta,err) = gd.adam_optimize(train_ex,sol,gd.logistic_cost_gradient, 1000,iterations = 1000,track_err = True,error_fn = gd.logistic_cost)
+        plt.plot(np.arange(err.shape[0]),err)
+        plt.show()        
         
 if __name__ == "__main__":
     unittest.main()
