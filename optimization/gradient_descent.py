@@ -4,11 +4,11 @@ import numpy as np
 
 def squared_error_cost(train_ex,sol,theta):
     h = train_ex @ theta
-    return np.sum(np.power(h - sol,2))
+    return np.sum(np.power(h - sol,2))/train_ex.shape[0]
 
 def linear_squared_error_gradient(train_ex, sol, theta):
     h = train_ex @ theta 
-    return train_ex.T @ (h - sol)
+    return train_ex.T @ (h - sol)/train_ex.shape[0]
 
 def sigmoid(train_ex, theta):
     z = -train_ex @ theta
@@ -16,20 +16,22 @@ def sigmoid(train_ex, theta):
 
 def logistic_cost(train_ex,sol,theta):
     h = sigmoid(train_ex,theta)
-    return -np.sum(sol.T @ np.log(h) + (1-sol).T @ np.log(1-h))    
+    return -np.sum(sol.T @ np.log(h) + (1-sol).T @ np.log(1-h))/train_ex.shape[0]    
 
 def logistic_cost_gradient(train_ex,sol,theta):
-    return train_ex.T @ (sigmoid(train_ex,theta)-sol)
+    return train_ex.T @ (sigmoid(train_ex,theta)-sol)/train_ex.shape[0]
 
 def column_normalize(array):
     mean_vals = array.mean(axis=0)
     std_vals = array.std(axis=0) + .00001
     return (np.subtract(array,mean_vals)/std_vals, (mean_vals,std_vals))
 
-def gradient_descent(train_ex, solutions, grad_fn, alpha=.0001, iterations=1000, track_err = False, error_fn = None):
+def gradient_descent(train_ex, solutions, grad_fn, alpha=.5, iterations=1000, track_err = False, error_fn = None,init_theta = None):
     if track_err:
         err = np.zeros(iterations)
-    curr_theta = np.random.rand(train_ex.shape[1],)
+    if init_theta == None:
+        init_theta = np.zeros(train_ex.shape[1],)
+    curr_theta = init_theta
     for i in range(iterations):
         curr_grad = grad_fn(train_ex,solutions,curr_theta)
         if track_err:
@@ -42,10 +44,12 @@ def gradient_descent(train_ex, solutions, grad_fn, alpha=.0001, iterations=1000,
         return (curr_theta,err) 
     return curr_theta
 
-def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .0001, iterations = 1000, track_err = False, error_fn = None):
+def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, iterations = 1000, track_err = False, error_fn = None, init_theta = None):
     if track_err:
         err = np.zeros(iterations)
-    curr_theta = np.random.rand(train_ex.shape[1],)
+    if init_theta == None:
+        init_theta = np.zeros(train_ex.shape[1],)
+    curr_theta = init_theta
     for i in range(iterations):
         indices = np.random.choice(train_ex.shape[0],mini_batch_size)
         min_batch = np.take(train_ex,indices,axis=0)
@@ -55,22 +59,22 @@ def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .0001, i
             if error_fn == None:
                 print("ERROR FUNCTION MUST BE PASSED WHEN ERROR TRACKING IS ENABLED!!")
                 raise ValueError
-            err[i] = error_fn(train_ex,solutions,curr_theta)
+            err[i] = error_fn(min_batch,sol_batch,curr_theta)
         curr_theta -= alpha*curr_grad 
     if track_err:
         return (curr_theta,err) 
     return curr_theta
 
 
-def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .0001, gamma = .01, iterations = 1000, track_err = False,error_fn = None):
+def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gamma = .01, iterations = 1000, track_err = False,error_fn = None, init_theta = None):
     if track_err:
-        err = np.zeros(iterations)
-    curr_theta = np.random.rand(train_ex.shape[1])
+        err = np.zeros(iterations) 
+    if init_theta == None:
+        init_theta = np.zeros(train_ex.shape[1],)
+    curr_theta = init_theta
     y = np.zeros((train_ex.shape[1],))
     y_last = np.zeros((train_ex.shape[1],))
     for i in range(iterations):
-        if i%100 == 0:
-            print(i)
         indices = np.random.choice(train_ex.shape[0],mini_batch_size)
         min_batch = np.take(train_ex,indices,axis=0)
         sol_batch = np.take(solutions, indices, axis=0)
@@ -79,7 +83,7 @@ def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .0001, 
             if error_fn == None:
                 print("ERROR FUNCTION MUST BE PASSED WHEN ERROR TRACKING IS ENABLED!!")
                 raise ValueError
-            err[i] = error_fn(train_ex,solutions,curr_theta)
+            err[i] = error_fn(min_batch,sol_batch,curr_theta)
         y = curr_theta - alpha*curr_grad
         curr_theta = (1-gamma)*y + gamma*y_last
         y_last = y

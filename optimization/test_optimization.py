@@ -83,7 +83,7 @@ class LinearTestCase(unittest.TestCase):
         train_ex = np.asarray(images)
         sol = (np.asarray(labels) == 7).astype('uint8')
         (train_ex, (in_add, in_scale)) = gd.column_normalize(train_ex) 
-        (theta,err) = gd.adam_optimize(train_ex,sol,gd.logistic_cost_gradient, 1000,iterations = 1000,track_err = True,error_fn = gd.logistic_cost)
+        (theta,err) = gd.adam_optimize(train_ex,sol,gd.logistic_cost_gradient,1000,iterations = 10000,alpha = .003, gamma=.99,track_err = True,error_fn = gd.logistic_cost)
         plt.plot(np.arange(err.shape[0]),err)
         plt.show()        
         
