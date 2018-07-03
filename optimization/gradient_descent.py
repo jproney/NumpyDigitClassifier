@@ -32,7 +32,7 @@ def column_normalize(array):
 def gradient_descent(train_ex, solutions, grad_fn, alpha=.5, iterations=1000, track_err = False, error_fn = None,init_theta = None,track_progress = False, num_logs= 100):
     if track_err:
         err = np.zeros(num_logs)
-    if init_theta == None:
+    if init_theta is None:
         init_theta = np.zeros(train_ex.shape[1],)
     curr_theta = init_theta
     for i in range(iterations):
@@ -40,7 +40,7 @@ def gradient_descent(train_ex, solutions, grad_fn, alpha=.5, iterations=1000, tr
             print("{}% complete".format((i/iterations)*100))
         curr_grad = grad_fn(train_ex,solutions,curr_theta)
         if track_err:
-            if error_fn == None:
+            if error_fn is None:
                 print("ERROR FUNCTION MUST BE PASSED WHEN ERROR TRACKING IS ENABLED!!")
                 raise ValueError 
             if i%int(iterations/num_logs) == 0:
@@ -53,7 +53,7 @@ def gradient_descent(train_ex, solutions, grad_fn, alpha=.5, iterations=1000, tr
 def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, iterations = 1000, track_err = False, error_fn = None, init_theta = None,track_progress = False,num_logs = 100):
     if track_err:
         err = np.zeros(num_logs)
-    if init_theta == None:
+    if init_theta is None:
         init_theta = np.zeros(train_ex.shape[1],)
     curr_theta = init_theta
     for i in range(iterations):
@@ -64,7 +64,7 @@ def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, iter
         sol_batch = np.take(solutions, indices, axis=0)
         curr_grad = grad_fn(min_batch, sol_batch, curr_theta)
         if track_err:
-            if error_fn == None:
+            if error_fn is None:
                 print("ERROR FUNCTION MUST BE PASSED WHEN ERROR TRACKING IS ENABLED!!")
                 raise ValueError 
             if i%int(iterations/num_logs) == 0:
@@ -78,7 +78,7 @@ def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, iter
 def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gamma = .01, iterations = 1000, track_err = False,error_fn = None, init_theta = None, track_progress = False, num_logs = 100):
     if track_err:
         err = np.zeros(num_logs) 
-    if init_theta == None:
+    if init_theta is None:
         init_theta = np.zeros(train_ex.shape[1],)
     curr_theta = init_theta
     y = np.zeros((train_ex.shape[1],))
@@ -91,7 +91,7 @@ def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gam
         sol_batch = np.take(solutions, indices, axis=0)
         curr_grad = grad_fn(min_batch, sol_batch, curr_theta)
         if track_err:
-            if error_fn == None:
+            if error_fn is None:
                 print("ERROR FUNCTION MUST BE PASSED WHEN ERROR TRACKING IS ENABLED!!")
                 raise ValueError
             if i%int(iterations/num_logs) == 0:
