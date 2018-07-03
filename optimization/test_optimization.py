@@ -81,10 +81,14 @@ class LinearTestCase(unittest.TestCase):
         m = mnist.MNIST('/home/petey/Documents/PythonProjects/MachineLearning/python-mnist/data')
         images, labels = m.load_training()
         train_ex = np.asarray(images)
-        sol = (np.asarray(labels) == 7).astype('uint8')
+        sol = (np.asarray(labels) == 1).astype('uint8')
         (train_ex, (in_add, in_scale)) = gd.column_normalize(train_ex) 
-        (theta,err) = gd.adam_optimize(train_ex,sol,gd.logistic_cost_gradient,1000,iterations = 10000,alpha = .003, gamma=.99,track_err = True,error_fn = gd.logistic_cost)
+        (theta,err) = gd.adam_optimize(train_ex,sol,gd.logistic_cost_gradient,32,iterations = 400000,alpha = .005, gamma=0.9,
+            track_err = True,error_fn = gd.percent_wrong_binary_class,track_progress = True)
+        #(theta,err) = gd.gradient_descent(train_ex,sol,gd.logistic_cost_gradient,iterations = 5000,alpha = .001,
+        #    track_err = True,error_fn = gd.logistic_cost,track_progress = True)
         plt.plot(np.arange(err.shape[0]),err)
+        print(err[-1])
         plt.show()        
         
 if __name__ == "__main__":
