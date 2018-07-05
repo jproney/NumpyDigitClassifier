@@ -1,4 +1,4 @@
-#gradient descent algorithm for minimizing cost
+#gradient descent-based algorithms for minimizing cost and associated helper functions
 
 import numpy as np
 
