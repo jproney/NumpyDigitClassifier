@@ -40,7 +40,7 @@ def classification_accuracy(train_ex,sol,theta):
 
 def column_normalize(array):
     mean_vals = array.mean(axis=0)
-    std_vals = array.std(axis=0) + .000001
+    std_vals = array.std(axis=0) + .00001
     return (np.subtract(array,mean_vals)/std_vals, (mean_vals,std_vals))
 
 def gradient_descent(train_ex, solutions, grad_fn, alpha=.5, iterations=1000, track_err = False, error_fn = None,init_theta = None,track_progress = False, num_logs= 100):
@@ -96,7 +96,7 @@ def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gam
         init_theta = np.zeros(train_ex.shape[1],)
     curr_theta = init_theta
     y = np.zeros(init_theta.shape)
-    y_last = np.zeros(init_theta.shape)
+    y_last = init_theta.copy()
     for i in range(iterations):
         if track_progress and i%(iterations/100) == 0:
             print("{}% complete".format((i/iterations)*100))
@@ -111,7 +111,7 @@ def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gam
             if i%int(iterations/num_logs) == 0:
                 err[int(i*num_logs/iterations)] = error_fn(train_ex,solutions,curr_theta)
         y = curr_theta - alpha*curr_grad
-        curr_theta = (1-gamma)*y + gamma*y_last
+        curr_theta = y +  gamma*(y - y_last)
         y_last = y
     if track_err:
         return (curr_theta,err) 
