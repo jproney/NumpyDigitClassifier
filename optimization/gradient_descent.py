@@ -98,6 +98,7 @@ def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gam
         init_theta = np.zeros(train_ex.shape[1],)
     curr_theta = init_theta
     moment = np.zeros(init_theta.shape)
+    eps = np.ones(G.shape)*1e-8
     for i in range(iterations):
         if track_progress and i%(iterations/100) == 0:
             print("{}% complete".format((i/iterations)*100))
@@ -114,6 +115,10 @@ def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gam
                 raise ValueError
             if i%int(iterations/num_logs) == 0:
                 err[int(i*num_logs/iterations)] = error_fn(train_ex,solutions,curr_theta)
+        G = (1-gamma2)*np.square(curr_grad) + gamma2*G
+        lrates = alpha/np.sqrt(G + eps)
+        adaptive_grad = np.sum(lrates*curr_grad,axis = 0).T
+        y = curr_theta - adaptive_grad
     if track_err:
         return (curr_theta,err) 
     return curr_theta
