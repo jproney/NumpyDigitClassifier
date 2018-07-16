@@ -22,7 +22,9 @@ def logistic_cost_gradient(train_ex,sol,theta):
     return train_ex.T @ (sigmoid(train_ex,theta)-sol)/train_ex.shape[0]
 
 def softmax(train_ex,theta):
-    e = np.exp(train_ex @ theta)
+    h = train_ex @ theta
+    m = np.max(h)    
+    e = np.exp(h - m)
     return e/(np.sum(e))
 
 def cross_entropy_cost(train_ex,sol,theta):
@@ -89,30 +91,29 @@ def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, iter
     return curr_theta
 
 
-def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gamma = .01, iterations = 1000, track_err = False,error_fn = None, init_theta = None, track_progress = False, num_logs = 100):
+def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gamma = .9, iterations = 1000, track_err = False,error_fn = None, init_theta = None, track_progress = False, num_logs = 100):
     if track_err:
         err = np.zeros(num_logs) 
     if init_theta is None:
         init_theta = np.zeros(train_ex.shape[1],)
     curr_theta = init_theta
-    y = np.zeros(init_theta.shape)
-    y_last = init_theta.copy()
+    moment = np.zeros(init_theta.shape)
     for i in range(iterations):
         if track_progress and i%(iterations/100) == 0:
             print("{}% complete".format((i/iterations)*100))
         indices = np.random.choice(train_ex.shape[0],mini_batch_size)
         min_batch = np.take(train_ex,indices,axis=0)
         sol_batch = np.take(solutions, indices, axis=0)
-        curr_grad = grad_fn(min_batch, sol_batch, curr_theta)
+        curr_grad = grad_fn(min_batch, sol_batch, curr_theta - gamma*moment) #add momentum before computing grad
+        moment = gamma*moment + alpha*curr_grad
+        curr_theta -= moment
+
         if track_err:
             if error_fn is None:
                 print("ERROR FUNCTION MUST BE PASSED WHEN ERROR TRACKING IS ENABLED!!")
                 raise ValueError
             if i%int(iterations/num_logs) == 0:
                 err[int(i*num_logs/iterations)] = error_fn(train_ex,solutions,curr_theta)
-        y = curr_theta - alpha*curr_grad
-        curr_theta = y +  gamma*(y - y_last)
-        y_last = y
     if track_err:
         return (curr_theta,err) 
     return curr_theta
