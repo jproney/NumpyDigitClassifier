@@ -91,7 +91,7 @@ def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, iter
     return curr_theta
 
 
-def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gamma = .99, w = 200, iterations = 1000, track_err = False,error_fn = None, init_theta = None, track_progress = False, num_logs = 100):
+def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gamma = .99, lamb = .05, w = 200, iterations = 2000, track_err = False,error_fn = None, init_theta = None, track_progress = False, num_logs = 100):
     if track_err:
         err = np.zeros(num_logs) 
     if init_theta is None:
@@ -108,6 +108,7 @@ def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gam
         min_batch = np.take(train_ex,indices,axis=0)
         sol_batch = np.take(solutions, indices, axis=0)
         curr_grad = grad_fn(min_batch, sol_batch, curr_theta - gamma*moment) #add momentum before computing grad
+        curr_grad += lamb*curr_theta # regularize
         grad_history[:,i] = np.ndarray.flatten(np.square(curr_grad))
         G = np.sum(grad_history[:,max(0,i-w):i+1],axis=1).reshape(curr_grad.shape)
         lrates = alpha/np.sqrt(G + eps)                             
