@@ -91,12 +91,14 @@ def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, iter
     return curr_theta
 
 
-def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gamma = .9, iterations = 1000, track_err = False,error_fn = None, init_theta = None, track_progress = False, num_logs = 100):
+def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gamma = .99, w = 200, iterations = 1000, track_err = False,error_fn = None, init_theta = None, track_progress = False, num_logs = 100):
     if track_err:
         err = np.zeros(num_logs) 
     if init_theta is None:
         init_theta = np.zeros(train_ex.shape[1],)
     curr_theta = init_theta
+    grad_history = np.zeros((curr_theta.size,iterations))
+    G = np.zeros(curr_theta.shape)
     moment = np.zeros(init_theta.shape)
     eps = np.ones(G.shape)*1e-8
     for i in range(iterations):
@@ -106,19 +108,18 @@ def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gam
         min_batch = np.take(train_ex,indices,axis=0)
         sol_batch = np.take(solutions, indices, axis=0)
         curr_grad = grad_fn(min_batch, sol_batch, curr_theta - gamma*moment) #add momentum before computing grad
-        moment = gamma*moment + alpha*curr_grad
+        grad_history[:,i] = np.ndarray.flatten(np.square(curr_grad))
+        G = np.sum(grad_history[:,max(0,i-w):i+1],axis=1).reshape(curr_grad.shape)
+        lrates = alpha/np.sqrt(G + eps)                             
+        adaptive_grad = lrates*curr_grad
+        moment = gamma*moment + adaptive_grad
         curr_theta -= moment
-
         if track_err:
             if error_fn is None:
                 print("ERROR FUNCTION MUST BE PASSED WHEN ERROR TRACKING IS ENABLED!!")
                 raise ValueError
             if i%int(iterations/num_logs) == 0:
                 err[int(i*num_logs/iterations)] = error_fn(train_ex,solutions,curr_theta)
-        G += np.square(curr_grad)
-        lrates = alpha/np.sqrt(G + eps)
-        adaptive_grad = np.sum(lrates*curr_grad, axis = 0).T
-        y = curr_theta - adaptive_grad
     if track_err:
         return (curr_theta,err) 
     return curr_theta
