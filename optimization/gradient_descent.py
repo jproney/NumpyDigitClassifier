@@ -115,9 +115,9 @@ def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gam
                 raise ValueError
             if i%int(iterations/num_logs) == 0:
                 err[int(i*num_logs/iterations)] = error_fn(train_ex,solutions,curr_theta)
-        G = (1-gamma2)*np.square(curr_grad) + gamma2*G
+        G += np.square(curr_grad)
         lrates = alpha/np.sqrt(G + eps)
-        adaptive_grad = np.sum(lrates*curr_grad,axis = 0).T
+        adaptive_grad = np.sum(lrates*curr_grad, axis = 0).T
         y = curr_theta - adaptive_grad
     if track_err:
         return (curr_theta,err) 
