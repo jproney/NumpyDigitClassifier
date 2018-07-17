@@ -86,7 +86,7 @@ class LinearTestCase(unittest.TestCase):
         labels = np.tile(np.asarray(labels),(10,1)).T
         cats = np.tile(np.arange(0,10),(train_ex.shape[0],1))
         sol = np.equal(labels, cats).astype('float64')
-        theta0 = np.random.rand(train_ex.shape[1], sol.shape[1]) 
+        theta0 = np.zeros((train_ex.shape[1], sol.shape[1]))
         (theta,err) = gd.adam_optimize(train_ex,sol,gd.cross_entropy_cost_gradient,32,iterations = 2000,alpha = .001, gamma = .9, w = 100,
             init_theta = theta0, track_err = True, error_fn = gd.classification_accuracy,track_progress = True)
         plt.plot(np.arange(err.shape[0]),err)

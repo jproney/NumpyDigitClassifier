@@ -7,7 +7,7 @@ def squared_error_cost(train_ex,sol,theta):
     return np.sum(np.power(h - sol,2))/train_ex.shape[0]
 
 def squared_error_cost_gradient(train_ex, sol, theta):
-    h = train_ex @ theta 
+    h = train_ex @ theta
     return train_ex.T @ (h - sol)/train_ex.shape[0]
 
 def sigmoid(train_ex, theta):
@@ -29,7 +29,7 @@ def softmax(train_ex,theta):
 
 def cross_entropy_cost(train_ex,sol,theta):
     h = softmax(train_ex,theta)
-    return -np.sum(sol.T @ np.log(h) + (1-sol).T @ np.log(1-h))/train_ex.shape[0]/theta.shape[1]
+    return -np.sum(sol * np.log(h))/train_ex.shape[0]/theta.shape[1]
 
 def cross_entropy_cost_gradient(train_ex, sol, theta):
     return train_ex.T @ (softmax(train_ex,theta) - sol)/train_ex.shape[0]/theta.shape[1]
@@ -91,7 +91,7 @@ def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, iter
     return curr_theta
 
 
-def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gamma = .99, lamb = .05, w = 200, iterations = 2000, track_err = False,error_fn = None, init_theta = None, track_progress = False, num_logs = 100):
+def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, gamma = .99, lamb = 0, w = 200, iterations = 2000, track_err = False,error_fn = None, init_theta = None, track_progress = False, num_logs = 100):
     if track_err:
         err = np.zeros(num_logs) 
     if init_theta is None:
