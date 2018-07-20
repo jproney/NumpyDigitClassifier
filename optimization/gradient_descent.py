@@ -75,7 +75,7 @@ def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, iter
     for i in range(iterations):
         if track_progress and i%(iterations/100) == 0:
             print("{}% complete".format((i/iterations)*100))
-        indices = np.random.choice(train_ex.shape[0],mini_batch_size,replace=False)
+        indices = np.random.choice(np.arange(train_ex.shape[0]),mini_batch_size)
         min_batch = np.take(train_ex,indices,axis=0)
         sol_batch = np.take(solutions, indices, axis=0)
         curr_grad = grad_fn(min_batch, sol_batch, curr_theta)
