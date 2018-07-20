@@ -75,17 +75,21 @@ def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha = .5, iter
     for i in range(iterations):
         if track_progress and i%(iterations/100) == 0:
             print("{}% complete".format((i/iterations)*100))
-        indices = np.random.choice(np.arange(train_ex.shape[0]),mini_batch_size)
-        min_batch = np.take(train_ex,indices,axis=0)
-        sol_batch = np.take(solutions, indices, axis=0)
-        curr_grad = grad_fn(min_batch, sol_batch, curr_theta)
+        shuff = np.hstack((train_ex,solutions))
+        np.random.shuffle(shuff)
+        min_batches = shuff[:,0:train_ex.shape[1]]
+        sol_batches = shuff[:,train_ex.shape[1]:]
+        for j in range(int(train_ex.shape[0]/mini_batch_size)):
+            curr_batch = min_batches[j*mini_batch_size:(j+1)*mini_batch_size,:] 
+            curr_sol = sol_batches[j*mini_batch_size:(j+1)*mini_batch_size,:]
+            curr_grad = grad_fn(curr_batch, curr_sol, curr_theta)
+            curr_theta -= alpha*curr_grad 
         if track_err:
             if error_fn is None:
                 print("ERROR FUNCTION MUST BE PASSED WHEN ERROR TRACKING IS ENABLED!!")
                 raise ValueError 
             if i%int(iterations/num_logs) == 0:
                 err[int(i*num_logs/iterations)] = error_fn(train_ex,solutions,curr_theta)
-        curr_theta -= alpha*curr_grad 
     if track_err:
         return (curr_theta,err) 
     return curr_theta
