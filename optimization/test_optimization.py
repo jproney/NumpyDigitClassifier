@@ -18,7 +18,7 @@ class LinearTestCase(unittest.TestCase):
         start = time.time()
         (train_ex, (in_add,in_scale)) = gd.column_normalize(train_ex)
         (sol,(out_add,out_scale)) = gd.column_normalize(sol)
-        (theta,err) = gd.gradient_descent(train_ex,sol, gd.squared_error_cost_gradient,iterations = 200,track_err = True, error_fn = gd.squared_error_cost)
+        (theta,err) = gd.gradient_descent(train_ex,sol, gd.squared_error_cost_gradient,epochs = 200,track_err = True, error_fn = gd.squared_error_cost)
         print("Converged in {} Seconds".format(time.time()-start))
         train_ex.sort(0)
         h = train_ex @ theta
@@ -64,7 +64,7 @@ class LinearTestCase(unittest.TestCase):
         start = time.time()
         (train_ex, (in_add,in_scale)) = gd.column_normalize(train_ex)
         (sol,(out_add,out_scale)) = gd.column_normalize(sol)
-        (theta,err) = gd.adam_optimize(train_ex,sol, gd.squared_error_cost_gradient,32,iterations = 1000,track_err = True,error_fn = gd.squared_error_cost)
+        (theta,err) = gd.adam_optimize(train_ex,sol, gd.squared_error_cost_gradient,32,epochs = 100,track_err = True,error_fn = gd.squared_error_cost)
         print("Converged in {} Seconds".format(time.time()-start))
         train_ex.sort(0)
         h = train_ex @ theta
@@ -85,13 +85,10 @@ class LinearTestCase(unittest.TestCase):
         train_ex = np.hstack((np.ones((train_ex.shape[0],1)),train_ex))        
         labels = np.tile(np.asarray(labels),(10,1)).T
         cats = np.tile(np.arange(0,10),(train_ex.shape[0],1))
-        sol = np.equal(labels, cats).astype('float64')
+        sol = np.equal(labels, cats).astype('float64')#create on-hot vector
         theta0 = np.zeros((train_ex.shape[1], sol.shape[1]))
-        (theta,err) = gd.sgd_optimize(train_ex,sol,gd.cross_entropy_cost_gradient,1, epochs = 10,alpha = .001,
+        (theta,err) = gd.sgd_optimize(train_ex,sol,gd.cross_entropy_cost_gradient, 1, epochs = 10,alpha = .001,
          init_theta = theta0, track_err = True, error_fn = gd.classification_accuracy,track_progress = True)
-
-        #(theta,err) = gd.adam_optimize(train_ex,sol,gd.cross_entropy_cost_gradient,32,iterations = 2000,alpha = .001, gamma = .9, w = 100,
-        #    init_theta = theta0, track_err = True, error_fn = gd.classification_accuracy,track_progress = True)
         plt.plot(np.arange(err.shape[0]),err)
         print(np.min(err))
         plt.show()        
