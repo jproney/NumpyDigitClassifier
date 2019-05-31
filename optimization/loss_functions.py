@@ -1,3 +1,5 @@
+# Vectorized loss functions and gradients. Capital letters are matrices. See optimization.ipynb for derivations.
+
 import numpy as np
 
 
@@ -18,9 +20,8 @@ def sigmoid(X, theta):
 
 def softmax(X, Theta):
     h = X @ Theta
-    m = np.max(h)
-    e = np.exp(h - m)  # doesn't change answer and makes intermediate values smaller
-    return e / (np.sum(e))
+    m = np.exp(h)
+    return m / np.sum(m)
 
 
 def cross_entropy_cost(X, Y, Theta):

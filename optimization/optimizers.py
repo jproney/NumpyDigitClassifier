@@ -1,4 +1,4 @@
-# gradient descent-based algorithms for minimizing cost and associated helper functions
+# gradient descent-based algorithms for minimizing cost
 
 import numpy as np
 
@@ -22,7 +22,7 @@ def gradient_descent(train_ex, solutions, grad_fn, alpha=.5, epochs=100, track_e
                 err[int(i * num_logs / epochs)] = error_fn(train_ex, solutions, curr_theta)
         curr_theta -= alpha * curr_grad
     if track_err:
-        return (curr_theta, err)
+        return curr_theta, err
     return curr_theta
 
 
@@ -56,7 +56,7 @@ def sgd_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha=.5, epochs
                 if idx % int(total_iters / num_logs) == 0:
                     err[int(idx * num_logs / total_iters)] = error_fn(train_ex, solutions, curr_theta)
     if track_err:
-        return (curr_theta, err)
+        return curr_theta, err
     return curr_theta
 
 
@@ -100,5 +100,5 @@ def adam_optimize(train_ex, solutions, grad_fn, mini_batch_size, alpha=.5, gamma
                 if idx % int(total_iters / num_logs) == 0:
                     err[int(idx * num_logs / total_iters)] = error_fn(train_ex, solutions, curr_theta)
     if track_err:
-        return (curr_theta, err)
+        return curr_theta, err
     return curr_theta
