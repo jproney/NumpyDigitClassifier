@@ -3,59 +3,6 @@
 import numpy as np
 
 
-def squared_error_cost(X, y, theta):
-    y_hat = X @ theta
-    return np.sum(np.power(y_hat - y, 2)) / X.shape[0]
-
-
-def squared_error_cost_gradient(X, y, theta):
-    y_hat = X @ theta
-    return X.T @ (y_hat - y) / X.shape[0]
-
-
-def sigmoid(X, theta):
-    z = -X @ theta
-    return 1 / (1 + np.exp(z))
-
-
-def logistic_cost(train_ex, sol, theta):
-    h = sigmoid(train_ex, theta)
-    return -(sol.T @ np.log(h) + (1 - sol).T @ np.log(1 - h)) / train_ex.shape[0]
-
-
-def logistic_cost_gradient(train_ex, sol, theta):
-    return train_ex.T @ (sigmoid(train_ex, theta) - sol) / train_ex.shape[0]
-
-
-def softmax(train_ex, theta):
-    h = train_ex @ theta
-    m = np.max(h)
-    e = np.exp(h - m)
-    return e / (np.sum(e))
-
-
-def cross_entropy_cost(train_ex, sol, theta):
-    h = softmax(train_ex, theta)
-    return -np.sum(sol * np.log(h)) / train_ex.shape[0] / theta.shape[1]
-
-
-def cross_entropy_cost_gradient(train_ex, sol, theta):
-    return train_ex.T @ (softmax(train_ex, theta) - sol) / train_ex.shape[0] / theta.shape[1]
-
-
-def classification_accuracy(train_ex, sol, theta):
-    guess = np.zeros(sol.shape)
-    guess_idx = np.argmax(softmax(train_ex, theta), axis=1)
-    guess[range(guess.shape[0]), guess_idx] = 1
-    return np.sum(np.square(guess - sol)) / train_ex.shape[0] / 2
-
-
-def column_normalize(array):
-    mean_vals = array.mean(axis=0)
-    std_vals = array.std(axis=0) + .00001
-    return (np.subtract(array, mean_vals) / std_vals, (mean_vals, std_vals))
-
-
 def gradient_descent(train_ex, solutions, grad_fn, alpha=.5, epochs=100, track_err=False, error_fn=None,
                      init_theta=None, track_progress=False, num_logs=100):
     if track_err:
