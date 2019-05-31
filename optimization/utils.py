@@ -14,4 +14,4 @@ def softmax_classification_accuracy(train_ex,sol,theta):
 def column_normalize(array):
     mean_vals = array.mean(axis=0)
     std_vals = array.std(axis=0) + .00001
-    return (np.subtract(array,mean_vals)/std_vals, (mean_vals,std_vals))
+    return np.subtract(array,mean_vals)/std_vals, (mean_vals,std_vals)
