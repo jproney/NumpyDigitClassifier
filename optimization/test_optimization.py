@@ -68,6 +68,25 @@ class OptimizationTests(unittest.TestCase):
 
         assert(fuzzy_equals(theta, theta_real, .1))
 
+    def test_gd_regression_minibatch(self):
+
+        iters = 500
+
+        theta_real = np.array([4.0, -5.3, 2.2, 11.8, 6.4, 0.8])
+        X = np.random.rand(500, 6)
+        y = X @ theta_real
+
+        def grad(theta, aux_data): return lf.squared_error_cost_gradient(aux_data[0], aux_data[1], theta)
+
+        start = np.zeros(6)
+
+        theta = None
+        for theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.mini_batch_stream(X, y, 32, iters), alpha=.01,
+                                          init_theta=start):
+            pass
+
+        assert(fuzzy_equals(theta, theta_real, .1))
+
 
 if __name__ == "__main__":
     unittest.main()
