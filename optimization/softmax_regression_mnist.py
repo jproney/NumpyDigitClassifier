@@ -18,15 +18,15 @@ Theta_init = np.zeros((X_norm.shape[1], K))
 def grad(Theta, aux_data): return lf.cross_entropy_cost_gradient(aux_data[0], aux_data[1], Theta)
 
 
-epochs = 1000
+epochs = 20
 counter = 0
 Theta = None
 gradlog = []
 losslog = []
 
-for Theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.full_batch_stream(X_norm, Y, epochs),
+for Theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.mini_batch_stream(X_norm, Y, 4, epochs),
                                   alpha=.001, init_theta=Theta_init):
-    if counter % 10 == 0:
+    if counter % 1000 == 0:
         gradlog.append(np.sum(grad(Theta, (X_norm, Y))**2))
         losslog.append(lf.cross_entropy_cost(X_norm, Y, Theta))
         print(counter)
