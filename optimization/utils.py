@@ -1,7 +1,7 @@
 # Helper functions
 
 import numpy as np
-from optimization import loss_functions as lf
+import loss_functions as lf
 
 
 def softmax_classification_accuracy(X, Y, Theta):

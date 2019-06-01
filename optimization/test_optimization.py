@@ -1,6 +1,6 @@
 import unittest
-from optimization import optimizers as opt
-from optimization import loss_functions as lf
+import optimizers as opt
+import loss_functions as lf
 import numpy as np
 
 

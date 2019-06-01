@@ -22,7 +22,7 @@ def softmax(X, Theta):
     h = X @ Theta
     m = np.max(h)
     e = np.exp(h - m)
-    return e / np.sum(e)
+    return e / np.sum(e, axis=1)[:, None]
 
 
 def cross_entropy_cost(X, Y, Theta):

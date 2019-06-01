@@ -1,7 +1,8 @@
 import numpy as np
-from optimization import loss_functions as lf
-from optimization import optimizers as opt
-from optimization import utils
+import loss_functions as lf
+import optimizers as opt
+import utils
+import matplotlib.pyplot as plt
 import mnist
 
 m = mnist.MNIST('/home/petey/Documents/PythonProjects/MachineLearning/python-mnist/data')
@@ -17,13 +18,16 @@ Theta_init = np.zeros((X_norm.shape[1], K))
 def grad(Theta, aux_data): return lf.cross_entropy_cost_gradient(aux_data[0], aux_data[1], Theta)
 
 
-epochs = 150000
+epochs = 1000
+counter = 0
 Theta = None
-i = 0
-for (i, Theta) in zip(range(epochs), opt.gradient_descend(grad_fn=grad, data_stream=opt.mini_batch_stream(X_norm, Y, 1, epochs), alpha=.001,
-                                                          init_theta=Theta_init)):
-    print(i)
-    pass
+gradlog = []
+losslog = []
 
-
-print(utils.softmax_classification_accuracy(X_norm, Y, Theta))
+for Theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.full_batch_stream(X_norm, Y, epochs),
+                                  alpha=.001, init_theta=Theta_init):
+    if counter % 10 == 0:
+        gradlog.append(np.sum(grad(Theta, (X_norm, Y))**2))
+        losslog.append(lf.cross_entropy_cost(X_norm, Y, Theta))
+        print(counter)
+    counter += 1
