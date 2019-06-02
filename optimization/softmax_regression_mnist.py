@@ -31,3 +31,8 @@ for Theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.mini_batch_strea
         losslog.append(lf.cross_entropy_cost(X_norm, Y, Theta))
         print(counter)
     counter += 1
+
+plt.plot(losslog)
+plt.show()
+print(utils.softmax_classification_accuracy(X_norm, Y, Theta))
+
