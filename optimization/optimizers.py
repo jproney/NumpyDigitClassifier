@@ -3,7 +3,7 @@ import numpy as np
 import math
 
 
-def gradient_descend(grad_fn, init_theta, data_stream, alpha, update_fn=np.subtract()):
+def gradient_descend(grad_fn, init_theta, data_stream, alpha, update_fn=np.subtract):
     """
     Simple gradient descent algorithm for minimizing objective
     """

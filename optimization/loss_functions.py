@@ -28,9 +28,9 @@ def cross_entropy_cost(X, Y, Theta):
     return -np.sum(Y * np.log(h)) / X.shape[0]
 
 
-def cross_entropy_cost_gradient(X, Y, Theta):
-    X.T @ (softmax(X @ Theta) - Y) / X.shape[0]
-
-
 def cross_entropy_cost_gradient(H, Y):
     return softmax(H) - Y  # N x K matrix of gradients w.r.t final network outputs pre-softmaxing
+
+
+def cross_entropy_cost_gradient_theta(X, Y, Theta):
+    return X.T @ (softmax(X @ Theta) - Y) / X.shape[0]

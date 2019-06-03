@@ -15,7 +15,7 @@ Y = utils.to_one_hot(y, K)
 Theta_init = np.zeros((X_norm.shape[1], K))
 
 
-def grad(Theta, aux_data): return lf.cross_entropy_cost_gradient(aux_data[0], aux_data[1], Theta)
+def grad(Theta, aux_data): return lf.cross_entropy_cost_gradient_theta(aux_data[0], aux_data[1], Theta)
 
 
 epochs = 20
