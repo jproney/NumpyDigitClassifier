@@ -13,22 +13,24 @@ def squared_error_cost_gradient(X, y, theta):
     return X.T @ (y_hat - y) / X.shape[0]
 
 
-def sigmoid(X, theta):
-    z = -X @ theta
+def sigmoid(z):
     return 1 / (1 + np.exp(z))
 
 
-def softmax(X, Theta):
-    h = X @ Theta
-    m = np.max(h)
-    e = np.exp(h - m)
+def softmax(H):
+    m = np.max(H)
+    e = np.exp(H - m)
     return e / np.sum(e, axis=1)[:, None]
 
 
 def cross_entropy_cost(X, Y, Theta):
-    h = softmax(X, Theta)
+    h = softmax(X @ Theta)
     return -np.sum(Y * np.log(h)) / X.shape[0]
 
 
 def cross_entropy_cost_gradient(X, Y, Theta):
-    return X.T @ (softmax(X, Theta) - Y) / X.shape[0]
+    X.T @ (softmax(X @ Theta) - Y) / X.shape[0]
+
+
+def cross_entropy_cost_gradient(H, Y):
+    return softmax(H) - Y  # N x K matrix of gradients w.r.t final network outputs pre-softmaxing

@@ -1,62 +1,62 @@
+"""
+All computations are vectorized to handle multiple examples at once. Every data matrix has N rows,
+where N is the number of examples. Weight matrices are dimensioned accordingly, resulting
+in matrix multiplications which are transposed from certain other implementations.
+"""
 import numpy as np
-
-
-def relu(x): 0 if x < 0 else x
-
-
-def relu_prime(x): 0 if x < 0 else 1
+import activations as act
 
 
 class WeightLayer:
 
-    def __init__(self, num_inputs, num_outputs, activ=relu, active_prime=relu_prime):
-        self.num_inputs = num_inputs
-        self.num_outputs = num_outputs
+    def __init__(self, weights, activ=act.relu, activ_prime=act.relu_prime):
+        # weights[i,j] is a weight mapping from neuron i in layer l to j in layer l+1
+        self.num_inputs = weights.shape[0]
+        self.num_outputs = weights.shape[1]
         self.activ = activ
         self.activ_prime = activ_prime
-        self.weight_matrix = np.random.rand((num_outputs, num_inputs + 1))
+        self.weight_matrix = weights
 
-    def compute(self, X):
-        with_bias = np.vstack((input_vec, np.ones((X.shape[1], 1)))))
-        return self.activ(self.weight_matrix @ X)
+    def compute(self, A):  # matrix with inputs from different examples stacked vertically
+        with_bias = np.hstack((A, np.ones(A.shape[1])))
+        return self.activ(with_bias @ self.weight_matrix)
 
     def set_weights(self, new):
-        self.weights = new
+        self.weight_matrix = new
 
-    def compute_activations_gradient(self, X)  # gradient of outputs wrt each input
-        with_bias = np.vstack((input_vec, np.ones((X.shape[1], 1)))))
-        h = self.weights @ with_bias
-        derivs = self.active_prime(h)
-        return weights.T[:-1, :] * derivs  # matrix where [x,y] = d(ouput y)/d(input x) (excludes bias input)
-
-    def compute_weights_gradient(self, X):  # gradient of outputs wrt each weight
-        with_bias = np.vstack((input_vec, np.ones((X.shape[1], 1)))))
-        h = self.weights @ with_bias
-        derivs = self.active_prime(h)
-        return (with_bias @ derivs.T) / X.shape[1]  # matrix where [x,y] = d(output y)/d(weight x)
+    def get_weights(self):
+        return self.weight_matrix
 
 
-class NeuralNet():
+class NeuralNet:
 
     def __init__(self):
         self.weight_layers = []
         self.num_layers = 0
 
-    def add_layer(layer):
+    def add_layer(self, layer):
         self.weight_layers.append(layer)
         self.num_layers += 1
 
     def compute(self, X):
-        layer_outputs = [X]
+        activations = [X]
+        curr_input = X
         for wl in self.weight_layers:
-            layer_outputs.append(wl.compute(layer_outputs[-1]))
-        return layer_outputs
+            curr_input = wl.compute(curr_input)
+            activations.append(curr_input)
+        return activations
 
-    def backpropogate(self, X, cost_gradient)
-        activation_grads = []
-        weight_grads = []
-        outputs = self.compute(X)
-        activation_grads.append(cost_gradient(X))  # cost wrt activations of output layer
-        for i, wl in reversed(self.weight_layers):
-            weight_grads.append(wl.compute_weights_gradient(outputs[i - 1]) @ activation_grads[-1])
-            activation_grads.append(compute_activations_gradient(X) @ activation_grads[-1])
+    def backpropogate(self, X, Y, cost_gradient):
+        X_out = self.compute(X)  # activations of all layers
+        Delta = [cost_gradient(X_out[-1], Y)]  # N x K matrix
+        Grad = [X[-2].T @ Delta[0]]
+        for i, wl in zip(reversed(range(self.num_layers, 1)), reversed(self.weight_layers)):  # iterate backwards to second layer
+            Z = X[i-1] @ wl.weights
+            delta_prev = (Delta[0] @ wl.weights.T) * Z
+            Delta.insert(0, delta_prev)
+            grad = X[i-1].T @ Delta[0]
+            Grad.insert(0, grad)
+        return Grad
+
+
+
