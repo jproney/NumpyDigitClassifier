@@ -4,7 +4,14 @@ import numpy as np
 import loss_functions as lf
 
 
-def softmax_classification_accuracy(X, Y, Theta):
+def softmax_classification_accuracy(X, Y):
+    guess = np.zeros(Y.shape)
+    guess_idx = np.argmax(lf.softmax(X), axis=1)
+    guess[range(guess.shape[0]), guess_idx] = 1
+    return np.sum(np.square(guess - Y))/X.shape[0]/2
+
+
+def softmax_classification_accuracy_theta(X, Y, Theta):
     guess = np.zeros(Y.shape)
     guess_idx = np.argmax(lf.softmax(X @ Theta), axis=1)
     guess[range(guess.shape[0]), guess_idx] = 1

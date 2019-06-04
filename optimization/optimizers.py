@@ -8,7 +8,7 @@ def gradient_descend(grad_fn, init_theta, data_stream, alpha, update_fn=np.subtr
     Simple gradient descent algorithm for minimizing objective
     """
 
-    curr_theta = np.copy(init_theta)
+    curr_theta = init_theta
 
     for aux_data in data_stream:
         curr_grad = grad_fn(curr_theta, aux_data)

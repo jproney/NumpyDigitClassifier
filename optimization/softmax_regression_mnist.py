@@ -21,18 +21,16 @@ def grad(Theta, aux_data): return lf.cross_entropy_cost_gradient_theta(aux_data[
 epochs = 20
 counter = 0
 Theta = None
-gradlog = []
 losslog = []
 
 for Theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.mini_batch_stream(X_norm, Y, 4, epochs),
                                   alpha=.001, init_theta=Theta_init):
     if counter % 1000 == 0:
-        gradlog.append(np.sum(grad(Theta, (X_norm, Y))**2))
-        losslog.append(lf.cross_entropy_cost(X_norm, Y, Theta))
+        losslog.append(lf.cross_entropy_cost_theta(X_norm, Y, Theta))
         print(counter)
     counter += 1
 
 plt.plot(losslog)
 plt.show()
-print(utils.softmax_classification_accuracy(X_norm, Y, Theta))
+print(utils.softmax_classification_accuracy_theta(X_norm, Y, Theta))
 

@@ -40,30 +40,32 @@ class NeuralNet:
         self.num_layers += 1
 
     def compute(self, X):
-        activations = [X]
+        activations = np.empty(self.num_layers + 1, dtype=object)
+        activations[0] = X
         curr_input = X
-        for wl in self.layers:
-            curr_input = wl.compute(curr_input)
-            activations.append(curr_input)
+        for l in range(self.num_layers):
+            curr_input = self.layers[l].compute(curr_input)
+            activations[l+1] = curr_input
         return activations
 
-    def backpropogate(self, X, Y, cost_gradient):
+    def backpropagate(self, X, Y, cost_gradient):
         A = self.compute(X)  # activations of all layers
-        Delta = [cost_gradient(A[-1], Y)]  # N x K matrix Delta_L
-        Grad = [A[-2].T @ Delta[0]]
+        Delta = np.empty(self.num_layers, dtype=object)
+        Grad = np.empty(self.num_layers, dtype=object)
+
+        Delta[self.num_layers-1] = cost_gradient(A[-1], Y)  # N x K matrix Delta_L
+        Grad[self.num_layers-1] = A[-2].T @ Delta[-1]
 
         for l in reversed(range(1, self.num_layers)):  # iterate backwards to second layer
             Z_l = A[l-1] @ self.layers[l-1].weights + self.layers[l-1].biases
-            delta_prev = (Delta[0] @ self.layers[l].weights.T) * self.layers[l].activ_prime(Z_l)
-            Delta.insert(0, delta_prev)
-            grad = A[l-1].T @ Delta[0]
-            Grad.insert(0, grad)
+            Delta[l-1] = (Delta[l] @ self.layers[l].weights.T) * self.layers[l].activ_prime(Z_l)
+            Grad[l-1] = A[l-1].T @ Delta[l-1]  # delta indices are down-shifted by 1
 
-        Grad_bias = [np.sum(delt, axis=0) for delt in Delta]
-        return Grad, Grad_bias
+        Grad_bias = np.array([np.sum(delt, axis=0) for delt in Delta])
+        return np.concatenate((Grad, Grad_bias))
 
-    def backpropogate_and_update(self, X, Y, cost_gradient, alpha):
-        Grad, Grad_bias = self.backpropogate(X,Y,cost_gradient)
+    def backpropagate_and_update(self, X, Y, cost_gradient, alpha):
+        Grad = self.backpropagate(X, Y, cost_gradient)
         for l in range(self.num_layers):
             self.layers[l].weights -= alpha*Grad[l]
-            self.layers[l].biases -= alpha*Grad_bias[l]
+            self.layers[l].biases -= alpha*Grad[self.num_layers + l]
