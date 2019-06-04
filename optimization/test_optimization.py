@@ -1,98 +1,92 @@
 import unittest
-import gradient_descent as gd
+import optimizers as opt
+import loss_functions as lf
 import numpy as np
-import random
-import matplotlib.pyplot as plt
-import time
-import mnist
-
-class LinearTestCase(unittest.TestCase):
-    
-    def test_basic_GD(self):
-        print("testing gradient descent...")
-        b = np.random.rand(3,1)*20
-        noise = np.random.rand(10000,1)*20000
-        input_vec = np.random.rand(10000,1)*100
-        train_ex = np.hstack((input_vec**2,input_vec,np.ones((10000,1))))
-        sol = train_ex @ b + noise
-        start = time.time()
-        (train_ex, (in_add,in_scale)) = gd.column_normalize(train_ex)
-        (sol,(out_add,out_scale)) = gd.column_normalize(sol)
-        (theta,err) = gd.gradient_descent(train_ex,sol, gd.squared_error_cost_gradient,epochs = 200,track_err = True, error_fn = gd.squared_error_cost)
-        print("Converged in {} Seconds".format(time.time()-start))
-        train_ex.sort(0)
-        h = train_ex @ theta
-        plt.subplot(2,1,1)
-        plt.plot(input_vec,sol,'bo',linestyle='none')
-        input_vec.sort(0)
-        plt.plot(input_vec,h,color='r',linewidth=4)
-        plt.subplot(2,1,2)
-        plt.plot(np.arange(err.shape[0]),err)
-        plt.show()
 
 
-    def test_SGD(self):
-        print("testing SGD...")
-        b = np.random.rand(3,1)*20
-        noise = np.random.rand(10000,1)*20000
-        input_vec = np.random.rand(10000,1)*100
-        train_ex = np.hstack((input_vec**2,input_vec,np.ones((10000,1))))
-        sol = train_ex @ b + noise
-        start = time.time()
-        (train_ex, (in_add,in_scale)) = gd.column_normalize(train_ex)
-        (sol,(out_add,out_scale)) = gd.column_normalize(sol)
-        (theta,err) = gd.sgd_optimize(train_ex,sol, gd.squared_error_cost_gradient,32, epochs = 100,track_err = True,error_fn = gd.squared_error_cost)
-        print("Converged in {} Seconds".format(time.time()-start))
-        train_ex.sort(0)
-        h = train_ex @ theta
-        plt.subplot(2,1,1)
-        plt.plot(input_vec,sol,'bo',linestyle='none')
-        input_vec.sort(0)
-        plt.plot(input_vec,h,color='r',linewidth=4)
-        plt.subplot(2,1,2)
-        plt.plot(np.arange(err.shape[0]),err)
-        plt.show()
+def fuzzy_equals(a, b, eps):
+    return sum(abs(a-b)) < eps
 
 
-    def test_adam(self):
-        print("testing ADAM...")
-        b = np.random.rand(3,1)*20
-        noise = np.random.rand(10000,1)*20000
-        input_vec = np.random.rand(10000,1)*100
-        train_ex = np.hstack((input_vec**2,input_vec,np.ones((10000,1))))
-        sol = train_ex @ b + noise
-        start = time.time()
-        (train_ex, (in_add,in_scale)) = gd.column_normalize(train_ex)
-        (sol,(out_add,out_scale)) = gd.column_normalize(sol)
-        (theta,err) = gd.adam_optimize(train_ex,sol, gd.squared_error_cost_gradient,32,epochs = 100,track_err = True,error_fn = gd.squared_error_cost)
-        print("Converged in {} Seconds".format(time.time()-start))
-        train_ex.sort(0)
-        h = train_ex @ theta
-        plt.subplot(2,1,1)
-        plt.plot(input_vec,sol,'bo',linestyle='none')
-        input_vec.sort(0)
-        plt.plot(input_vec,h,color='r',linewidth=4)
-        plt.subplot(2,1,2)
-        plt.plot(np.arange(err.shape[0]),err)
-        plt.show()
+class OptimizationTests(unittest.TestCase):
 
-    def test_logistic(self):
-        print("testing logistic regression on MNIST...")
-        m = mnist.MNIST('/home/petey/Documents/PythonProjects/MachineLearning/python-mnist/data')
-        images, labels = m.load_training()
-        train_ex = np.asarray(images)
-        (train_ex, (in_add, in_scale)) = gd.column_normalize(train_ex)
-        train_ex = np.hstack((np.ones((train_ex.shape[0],1)),train_ex))        
-        labels = np.tile(np.asarray(labels),(10,1)).T
-        cats = np.tile(np.arange(0,10),(train_ex.shape[0],1))
-        sol = np.equal(labels, cats).astype('float64')#create on-hot vector
-        theta0 = np.zeros((train_ex.shape[1], sol.shape[1]))
-        (theta,err) = gd.sgd_optimize(train_ex,sol,gd.cross_entropy_cost_gradient, 1, epochs = 10,alpha = .001,
-         init_theta = theta0, track_err = True, error_fn = gd.classification_accuracy,track_progress = True)
-        plt.plot(np.arange(err.shape[0]),err)
-        print(np.min(err))
-        plt.show()        
-      
+    def test_gd_parabaloid(self):
+
+        iters = 200
+
+        # Objective function is parabaloid: (3 - x)**2 + (7 - y)**2
+        minim = np.array([3.0, 7.0])  # Global minimum exists at (3,7)
+
+        def grad(theta, aux_data): return np.array([-2*(3-theta[0]), -2*(7-theta[1])])
+
+        start = np.array([-4.0, 2.0])
+
+        theta = None
+        for theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.dummy_data_stream(iters), alpha=.05, init_theta=start):
+            pass
+
+        assert(fuzzy_equals(theta, minim, .01))
+
+    def test_gd_himmelblau(self):
+
+        iters = 200
+
+        # Himmelblau function : (x**2 + y - 11)**2 + (x + y**2 - 7)**2
+        # 4 minima at: (3.0,2.0), (-2.805118, 3.131312), (-3.779310, -3.283186), (3.584428, -1.848126)
+        minim1 = np.array([3.0, 2.0])
+        minim2 = np.array([-2.805118, 3.131312])
+        minim3 = np.array([-3.779310, -3.283186])
+        minim4 = np.array([3.584428, -1.848126])
+
+        def grad(theta, aux_data): return np.array([4*theta[0]*(theta[0]**2 + theta[1] - 11) + 2*(theta[0] + theta[1]**2 - 7),
+                                                    2*(theta[0]**2 + theta[1] - 11) + 4*theta[1]*(theta[0] + theta[1]**2 - 7)])
+
+        start = np.array([2.0, -3.0])
+
+        theta = None
+        for theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.dummy_data_stream(iters), alpha=.005, init_theta=start):
+            pass
+
+        assert(fuzzy_equals(theta, minim1, .01) or fuzzy_equals(theta, minim2, .01) or fuzzy_equals(theta, minim3, .01)
+               or fuzzy_equals(theta, minim4, .01))
+
+    def test_gd_regression(self):
+
+        iters = 10000
+
+        theta_real = np.array([4.0, -5.3, 2.2, 11.8, 6.4, 0.8])
+        X = np.random.rand(500, 6)
+        y = X @ theta_real
+
+        def grad(theta, aux_data): return lf.squared_error_cost_gradient(aux_data[0], aux_data[1], theta)
+
+        start = np.zeros(6)
+
+        theta = None
+        for theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.full_batch_stream(X, y, iters), alpha=.01, init_theta=start):
+            pass
+
+        assert(fuzzy_equals(theta, theta_real, .1))
+
+    def test_gd_regression_minibatch(self):
+
+        iters = 500
+
+        theta_real = np.array([4.0, -5.3, 2.2, 11.8, 6.4, 0.8])
+        X = np.random.rand(500, 6)
+        y = X @ theta_real
+
+        def grad(theta, aux_data): return lf.squared_error_cost_gradient(aux_data[0], aux_data[1], theta)
+
+        start = np.zeros(6)
+
+        theta = None
+        for theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.mini_batch_stream(X, y, 32, iters), alpha=.01,
+                                          init_theta=start):
+            pass
+
+        assert(fuzzy_equals(theta, theta_real, .1))
+
+
 if __name__ == "__main__":
     unittest.main()
-
