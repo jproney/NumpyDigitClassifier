@@ -9,17 +9,18 @@ import activations as act
 
 class WeightLayer:
 
-    def __init__(self, weights, activ=act.relu, activ_prime=act.relu_prime):
+    def __init__(self, weights, biases, activ=act.relu, activ_prime=act.relu_prime):
         # weights[i,j] is a weight mapping from neuron i in layer l to j in layer l+1
+
         self.num_inputs = weights.shape[0]
         self.num_outputs = weights.shape[1]
         self.activ = activ
         self.activ_prime = activ_prime
         self.weight_matrix = weights
+        self.biases = biases
 
     def compute(self, A):  # matrix with inputs from different examples stacked vertically
-        with_bias = np.hstack((A, np.ones(A.shape[1])))
-        return self.activ(with_bias @ self.weight_matrix)
+        return self.activ(A @ self.weight_matrix + self.biases)
 
     def set_weights(self, new):
         self.weight_matrix = new
@@ -47,16 +48,19 @@ class NeuralNet:
         return activations
 
     def backpropogate(self, X, Y, cost_gradient):
-        X_out = self.compute(X)  # activations of all layers
-        Delta = [cost_gradient(X_out[-1], Y)]  # N x K matrix
+        A = self.compute(X)  # activations of all layers
+        Delta = [cost_gradient(A[-1], Y)]  # N x K matrix Delta_L
         Grad = [X[-2].T @ Delta[0]]
-        for i, wl in zip(reversed(range(self.num_layers, 1)), reversed(self.weight_layers)):  # iterate backwards to second layer
-            Z = X[i-1] @ wl.weights
-            delta_prev = (Delta[0] @ wl.weights.T) * Z
+
+        for l, wl in zip(reversed(range(1, self.num_layers)), reversed(self.weight_layers)):  # iterate backwards to second layer
+            Z_l = A[l-1] @ wl.weights + wl.biases
+            delta_prev = (Delta[0] @ wl.weights.T) * wl.activ_prime(Z_l)
             Delta.insert(0, delta_prev)
-            grad = X[i-1].T @ Delta[0]
+            grad = A[l-1].T @ Delta[0]
             Grad.insert(0, grad)
-        return Grad
+
+        Grad_bias = [np.sum(delt, axis=0) for delt in Delta]
+        return Grad, Grad_bias
 
 
 
