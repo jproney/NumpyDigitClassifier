@@ -32,5 +32,11 @@ for Theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.mini_batch_strea
 
 plt.plot(losslog)
 plt.show()
+print("Training set error rate:")
 print(utils.softmax_classification_accuracy_theta(X_norm, Y, Theta))
 
+im_test, lab_test = m.load_testing()
+X_test = utils.column_normalize_with_params(np.array(im_test), keep, mean, std)
+Y_test = utils.to_one_hot(np.array(lab_test), K)
+print("Test set error rate:")
+print(utils.softmax_classification_accuracy_theta(X_test, Y_test, Theta))

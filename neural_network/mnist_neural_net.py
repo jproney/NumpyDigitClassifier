@@ -28,22 +28,13 @@ net.add_layer(nn.WeightLayer(weights=np.random.rand(hidden_size, K)*.1 - .05, bi
 def grad(network, data): return network.backpropagate(data[0], data[1], lf.cross_entropy_cost_gradient)
 
 
-def update(network, nudge):
-    for l in range(network.num_layers):
-        network.layers[l].weights -= nudge[l]  # weight updates
-        network.layers[l].biases -= nudge[network.num_layers + l]  # bias updates
-    return network
-
-
 # train!
 epochs = 10
 counter = 0
 losslog = []
 
-print(utils.softmax_classification_accuracy(net.compute(X_norm)[-1], Y))
-
 for Theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.mini_batch_stream(X_norm, Y, 4, epochs),
-                                  alpha=.001, init_theta=net, update_fn=update):
+                                  alpha=.001, init_theta=net, update_fn=utils.update_neural_net):
     if counter % 1000 == 0:
         losslog.append(lf.cross_entropy_cost(net.compute(X_norm)[-1], Y))
         print(counter)
@@ -51,4 +42,11 @@ for Theta in opt.gradient_descend(grad_fn=grad, data_stream=opt.mini_batch_strea
 
 plt.plot(losslog)
 plt.show()
+print("Training set error rate:")
 print(utils.softmax_classification_accuracy(net.compute(X_norm)[-1], Y))
+
+im_test, lab_test = m.load_testing()
+X_test = utils.column_normalize_with_params(np.array(im_test), keep, mean, std)
+Y_test = utils.to_one_hot(np.array(lab_test), K)
+print("Test set error rate:")
+print(utils.softmax_classification_accuracy(net.compute(X_test)[-1], Y_test))

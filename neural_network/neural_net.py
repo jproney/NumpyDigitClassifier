@@ -63,9 +63,3 @@ class NeuralNet:
 
         Grad_bias = np.array([np.sum(delt, axis=0) for delt in Delta])
         return np.concatenate((Grad, Grad_bias))
-
-    def backpropagate_and_update(self, X, Y, cost_gradient, alpha):
-        Grad = self.backpropagate(X, Y, cost_gradient)
-        for l in range(self.num_layers):
-            self.layers[l].weights -= alpha*Grad[l]
-            self.layers[l].biases -= alpha*Grad[self.num_layers + l]
