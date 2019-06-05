@@ -3,7 +3,7 @@
 ## Repo Structure
 
 `/optimization` contains utlity functions and algorithms for gradient-based function optimization.
-`/neural_net` contains a multilayer neural network implementation, including a flexible implementation of the backpropogation algorithm.
+`/neural_network` contains a multilayer neural network implementation, including a flexible implementation of the backpropogation algorithm.
 
 ## Results
 
@@ -11,4 +11,4 @@ The neural network implementation was trained on the MNIST handwritten digits da
 
 ## Derivations
 
-In addition to code, the repo contains detailed derivations of all loss function gradients used in the project, including a derivation of the backpropagation algorithm. These derivations can be found in the iPython notebooks `/optimization/optimization.ipynb` and `/neural_net/neural_net.ipynb`.
+In addition to code, the repo contains detailed derivations of all loss function gradients used in the project, including a derivation of the backpropagation algorithm. These derivations can be found in the iPython notebooks `/optimization/optimization.ipynb` and `/neural_network/neural_net.ipynb`.
